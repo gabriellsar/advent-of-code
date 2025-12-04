@@ -4,52 +4,49 @@
 #include <math.h>
 
 #define BUFFER_SIZE 256
-#define MAX_SIZE 12
+#define DIGIT_COUNT 12
 
-void find_max_sequence(const char* buffer,const size_t buffer_size,size_t size_left,char* maxs, size_t index) {
-    if (size_left + index == MAX_SIZE) {
-        strcpy(maxs, buffer);
+void findmax(char* curr, char* buffer, const size_t bufferlen, size_t index, int ndigit) {
+    if (ndigit > DIGIT_COUNT) {
         return;
     }
-
-    char max = buffer[index]; 
-    size_t max_index = 0;
-
-    for (size_t i = index; i < buffer_size - size_left; i++) {
-        if (buffer[i] > max) {
-            max = buffer[i];
-            max_index = i;
+    
+    int max = 0;
+    int digitsleft = (DIGIT_COUNT - ndigit);
+    for (int i = index; i < bufferlen - digitsleft; i++) {
+        if (buffer[i] - '0' > max) {
+            max = buffer[i] - '0';
+            index = i;
         }
     }
-    printf("Max found %c at index %zu\n", max, max_index);
-    maxs[MAX_SIZE - size_left] = max;
-    find_max_sequence(buffer, buffer_size, size_left - 1, maxs, max_index + 1);
+    curr[ndigit - 1] = buffer[index];
+    findmax(curr,buffer,bufferlen,index + 1,ndigit + 1);
 }
 
-
 int main() {
-    FILE *file = fopen("sample-input.txt", "r");
+    FILE *file = fopen("input.txt", "r");
 
     if (file == NULL) {
         perror("Error opening file");
         return EXIT_FAILURE;
     }
 
-    unsigned long resp = 0;
+    __uint64_t resp = 0;
 
     char buffer[BUFFER_SIZE];
+
+    char currmax[DIGIT_COUNT + 1];
+    currmax[DIGIT_COUNT] = '\0';
+
     while (fgets(buffer, sizeof(buffer), file) != NULL) {        
         buffer[strcspn(buffer, "\n")] = '\0';
+        size_t bufferlen = strlen(buffer);
         
-        char number[MAX_SIZE];
-        find_max_sequence(buffer,strlen(buffer),MAX_SIZE, number, 0);
-        number[MAX_SIZE] = '\0';
+        findmax(currmax,buffer,bufferlen,0,1);
+        resp += strtoull(currmax, NULL, 10);
+    }
 
-        printf("Number %s\n", number);
-        resp += atol(number);
-    }    
-    printf("%lu\n", resp);
-
+    printf("%llu\n", resp);
     fclose(file);
     return 0;
 }
