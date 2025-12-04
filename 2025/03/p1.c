@@ -12,7 +12,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    int resp = 0;
+    long resp = 0;
 
     char buffer[BUFFER_SIZE];
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
@@ -20,21 +20,22 @@ int main() {
         buffer[strcspn(buffer, "\n")] = '\0';
         size_t bufferlen = strlen(buffer) - 1;
 
-        int maxs = -1;
-        int maxe;
-        
-        for (size_t i = 0; i < bufferlen; i++) {
-            if (maxs < buffer[i] - '0') {
+        int maxs = 0, maxe = 0;
+        size_t maxsindex = 0;
 
-                maxs = buffer[i] - '0';                 
-                maxe = buffer[i + 1] - '0';
-                
-                for (size_t j = i + 1; j < bufferlen + 1; j++) {
-                    maxe = (maxe < buffer[j] - '0') ? buffer[j] - '0' : maxe;
-                }
-            }            
+        for (int i = 0; i < bufferlen; i++) {
+            if (buffer[i] - '0' > maxs) {
+                maxs = buffer[i] - '0';
+                maxsindex = i + 1;
+            }
         }
-        
+
+        for (int j = maxsindex; j < bufferlen + 1; j++) {
+            if (buffer[j] - '0' > maxe) {
+                maxe = buffer[j] - '0';
+            }
+        }
+
         resp += 10*maxs + maxe;
 
     }
